@@ -11,7 +11,8 @@ class AlienInvasion:
     """Gerencia o jogo e seus comportamentos."""
 
     def __init__(self):
-        """Construtor da classe que inicializa o jogo e cria os recursos básicos"""
+        """Construtor da classe que inicializa o jogo e cria
+        os recursos básicos"""
         pygame.init()
         self.settings = Settings()
 
@@ -34,8 +35,6 @@ class AlienInvasion:
             pygame.sprite.Group()
         )  # Cria um grupo para armazenar os alienígenas presentes no jogo
 
-    
-    
     def create_fleet(self):
         """Cria uma frota de alienígenas."""
         # Cria um alienígena e calcula o número de alienígenas em uma linha
@@ -63,9 +62,9 @@ class AlienInvasion:
                 self.aliens.add(alien)
 
     def check_keycaps(self):
-        """Verifica os eventos de teclado para controlar 
+        """Verifica os eventos de teclado para controlar
             a nave e disparar projéteis"""
-        
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
@@ -85,16 +84,20 @@ class AlienInvasion:
                 ):  # Verifica se a tecla pressionada é a barra de espaço
                     if (
                         len(self.bullets) < self.settings.bullet_allowed
-                    ):  # Verifica se o número de projéteis na tela excede o limite permitido
+                    ):  # Verifica se o número de projéteis na tela
+                        # excede o limite permitido
                         new_bullet = Bullet(
                             self.screen, self.settings, self.ship
                         )  # Cria um novo projétil
-                        # Aqui seria necessário adicionar o novo projétil a um grupo de projéteis para que ele possa ser atualizado e desenhado na tela
+                        # Aqui seria necessário adicionar o novo projétil a um
+                        # grupo de projéteis para que ele possa ser atualizado
+                        # e desenhado na tela
                         self.bullets.add(
                             new_bullet
                         )  # Adiciona o novo projétil ao grupo de projéteis
 
-            elif event.type == pygame.KEYUP:  # Detecta quando uma tecla é liberada
+            elif event.type == pygame.KEYUP:  # Detecta quando uma tecla é
+                # liberada
                 if (
                     event.key == pygame.K_RIGHT
                 ):  # Verifica se a tecla liberada é a seta para a direita
@@ -104,15 +107,93 @@ class AlienInvasion:
                 ):  # Verifica se a tecla liberada é a seta para a esquerda
                     self.ship.moving_left = False
 
+    def check_bullets(self):
+        """Verifica os eventos projeteis lançados
+            e atualiza suas posições"""
+
+        for bullet in (
+            self.bullets.sprites()
+                ):  # Atualiza a posição de cada projétil no grupo de projéteis
+            bullet.draw_bullet()  # Desenha cada projétil na tela
+
+            self.bullets.update()  # Atualiza a posição de cada projétil
+            # no grupo de projéteis
+            for (
+                bullet
+            ) in self.bullets.copy():  # Verifica se algum projétil
+                # saiu da tela
+                if (
+                    bullet.rect.bottom <= 0
+                ):  # Se o projétil saiu da tela (parte inferior do retângulo
+                    # do projétil é menor ou igual a 0)
+                    self.bullets.remove(
+                        bullet
+                    )  # Remove o projétil do grupo de projéteis
+
+    def alien_position(self):
+        """Verifica os e atualiza a posição de
+            cada alienígena no grupo de alienígenas"""
+
+        for alien in self.aliens.sprites():
+            if (
+                alien.check_edges()
+            ):  # Verifica se algum alienígena atingiu a borda da tela
+                for alien in (
+                    self.aliens.sprites()
+                ):  # Atualiza a posição de cada alienígena no
+                    # grupo de alienígenas
+                    alien.rect.y += self.settings.fleet_drop_speed
+                    # Move cada alienígena para baixo com base na
+                    # velocidade de descida da frota
+                self.settings.fleet_direction *= -1
+                # Inverte a direção da frota para que os alienígenas se
+                # movam para o lado oposto na próxima atualização
+                break  # Sai do loop após encontrar o primeiro alienígena
+                # que atingiu a borda da tela
+
+    def alien_collision(self):
+        """Verifica colisões entre projéteis e alienígenas."""
+
+        # Verifica se algum projétil atingiu um alienígena
+        # Em caso afirmativo, remove o projétil e o alienígena atingido
+        pygame.sprite.groupcollide(
+            self.bullets, self.aliens, True, True
+        )  # Verifica as colisões entre os projéteis e os alienígenas,
+        # removendo ambos quando uma colisão é detectada
+
+    def nav_colision(self):
+        """Verifica colisões entre a nave e alienígenas."""
+
+        if pygame.sprite.spritecollideany(
+            self.ship, self.aliens
+        ):  # Verifica se a nave colidiu com algum alienígena
+            print(
+                "A nave foi atingida!"
+            )  # Imprime uma mensagem no console indicando que
+            # a nave foi atingida
+            sys.exit()  # Encerra o jogo
+
+    def alien_drawn(self):
+        """Desenha cada alienígena na tela usando o método blitme."""
+
+        # Desenha os alienígenas presentes no grupo de alienígenas na tela
+        self.aliens.draw(
+            self.screen
+            # Desenha os alienígenas presentes no
+            # grupo de alienígenas na tela
+        )
+
     def run_game(self):
         """Cria um laço de repetição para a tela sempre ficar visível até
         que o usuário decida fechar a janela."""
 
-        self.create_fleet()  # Cria a frota de alienígenas para ser desenhada na tela
+        self.create_fleet()  # Cria a frota de alienígenas
+        # para ser desenhada na tela
 
         while True:
 
-            # Verifica os eventos de teclado para controlar a nave e disparar projéteis
+            # Verifica os eventos de teclado para controlar a
+            # nave e disparar projéteis
             self.check_keycaps()
 
             # Redesenha a tela a cada passagem pelo laço
@@ -121,61 +202,33 @@ class AlienInvasion:
             # Redesenha a nave em sua posição atual
             self.ship.blitme()
 
-            # alien.drawme() # Desenha os alienígenas presentes no grupo de alienígenas na tela
-            self.aliens.draw(
-                self.screen
-            )  # Desenha os alienígenas presentes no grupo de alienígenas na tela
+            # Desenha cada alienígena na tela usando o método blitme
+            self.alien_drawn()
 
             # Atualiza a posição da nave com base na variável de controle
             self.ship.update()
 
-            for bullet in (
-                self.bullets.sprites()
-            ):  # Atualiza a posição de cada projétil no grupo de projéteis
-                bullet.draw_bullet()  # Desenha cada projétil na tela
-
-            self.bullets.update()  # Atualiza a posição de cada projétil no grupo de projéteis
-            for (
-                bullet
-            ) in self.bullets.copy():  # Verifica se algum projétil saiu da tela
-                if (
-                    bullet.rect.bottom <= 0
-                ):  # Se o projétil saiu da tela (parte inferior do retângulo do projétil é menor ou igual a 0)
-                    self.bullets.remove(
-                        bullet
-                    )  # Remove o projétil do grupo de projéteis
+            # Verifica os eventos projeteis lançados e atualiza suas posições
+            self.check_bullets()
 
             # Verifica se algum projétil atingiu um alienígena
-            # Em caso afirmativo, remove o projétil e o alienígena atingido
-            pygame.sprite.groupcollide(
-                self.bullets, self.aliens, True, True
-            )  # Verifica as colisões entre os projéteis e os alienígenas, removendo ambos quando uma colisão é detectada
+            self.alien_collision()
 
-            for alien in self.aliens.sprites():
-                if (
-                    alien.check_edges()
-                ):  # Verifica se algum alienígena atingiu a borda da tela
-                    for alien in (
-                        self.aliens.sprites()
-                    ):  # Atualiza a posição de cada alienígena no grupo de alienígenas
-                        alien.rect.y += self.settings.fleet_drop_speed  # Move cada alienígena para baixo com base na velocidade de descida da frota
-                    self.settings.fleet_direction *= -1  # Inverte a direção da frota para que os alienígenas se movam para o lado oposto na próxima atualização
-                    break  # Sai do loop após encontrar o primeiro alienígena que atingiu a borda da tela
+            # Verifica os e atualiza a posição de cada alienígena
+            # no grupo de alienígenas
+            self.alien_position()
 
             # Torna visível a tela mais recente
             pygame.display.flip()
 
-            self.bullets.update()  # Atualiza a posição de cada projétil no grupo de projéteis
+            self.bullets.update()  # Atualiza a posição de cada projétil no
+            # grupo de projéteis
 
-            self.aliens.update()  # Atualiza a posição de cada alienígena no grupo de alienígenas
+            self.aliens.update()  # Atualiza a posição de cada alienígena no
+            # grupo de alienígenas
 
-            if pygame.sprite.spritecollideany(
-                self.ship, self.aliens
-            ):  # Verifica se a nave colidiu com algum alienígena
-                print(
-                    "A nave foi atingida!"
-                )  # Imprime uma mensagem no console indicando que a nave foi atingida
-                sys.exit()  # Encerra o jogo
+            # Verifica se algum alienígena colidiu com a nave
+            self.nav_colision()
 
 
 if __name__ == "__main__":
