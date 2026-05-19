@@ -7,6 +7,10 @@ from event_manager import EventManager
 from bullet_manager import BulletManager
 from collision_manager import CollisionManager
 
+from alien import Alien
+
+from fast_alien import FastAlien
+
 
 class AlienInvasion:
     """Gerencia o jogo e seus comportamentos."""
@@ -32,13 +36,14 @@ class AlienInvasion:
             pygame.sprite.Group()
         )  # Cria um grupo para armazenar os projéteis disparados pela nave
 
-        self.aliens = (
-            pygame.sprite.Group()
-        )  # Cria um grupo para armazenar os alienígenas presentes no jogo
-
-        self.fleet_manager = FleetManager(self)
-        self.event_manager = EventManager(self)
         self.bullet_manager = BulletManager(self)
+        self.fleet_manager = FleetManager(
+            self.screen, self.settings, self.ship, FastAlien
+        )
+        self.aliens = self.fleet_manager.aliens
+        # Cria um grupo para armazenar os alienígenas presentes no jogo
+
+        self.event_manager = EventManager(self)
         self.collision_manager = CollisionManager(self)
 
     def run_game(self):
