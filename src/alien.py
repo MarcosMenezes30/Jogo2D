@@ -29,11 +29,16 @@ class Alien(Sprite):
 
     def update(self):
         self.x += (
-            self.settings.alien_speed * self.settings.fleet_direction
+            self.settings.alien_speed
+            * self._speed_multiplier()
+            * self.settings.fleet_direction
         )  # Move o alienígena para a direita ou esquerda com base na direção da frota
         self.rect.x = (
             self.x
         )  # Atualiza a posição do rect do alienígena com base na nova coordenada x
+
+    def _speed_multiplier(self):
+        return 1
 
     def check_edges(self):
         """Retorna True se o alienígena estiver na borda da tela."""

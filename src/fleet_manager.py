@@ -1,19 +1,28 @@
 import pygame
 
 from alien import Alien
+from interfaces import AlienFactory, FleetSettings, HasRect
 
 
 class FleetManager:
     """Responsável por criar e gerenciar a frota de alienígenas."""
 
-    def __init__(self, screen, settings, ship, alien_class=Alien):
+    def __init__(
+        self,
+        screen,
+        settings: FleetSettings,
+        ship: HasRect,
+        alien_class: AlienFactory = Alien,
+    ):
         self.screen = screen
         self.settings = settings
         self.ship = ship
         self.aliens = pygame.sprite.Group()
         self.alien_class = alien_class
 
-    def _create_alien(self, alien_number: int, row_number: int, alien_width: int, alien_height: int) -> None:
+    def _create_alien(
+        self, alien_number: int, row_number: int, alien_width: int, alien_height: int
+    ) -> None:
         """Cria um alienígena e o posiciona na linha."""
         alien = self.alien_class(self.screen, self.settings)
         alien.x = alien_width + 2 * alien_width * alien_number

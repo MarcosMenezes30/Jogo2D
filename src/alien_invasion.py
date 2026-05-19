@@ -2,12 +2,11 @@ import pygame
 
 from settings import Settings
 from ship import Ship
+from bullet import Bullet
 from fleet_manager import FleetManager
 from event_manager import EventManager
 from bullet_manager import BulletManager
 from collision_manager import CollisionManager
-
-from alien import Alien
 
 from fast_alien import FastAlien
 
@@ -36,15 +35,19 @@ class AlienInvasion:
             pygame.sprite.Group()
         )  # Cria um grupo para armazenar os projéteis disparados pela nave
 
-        self.bullet_manager = BulletManager(self)
+        self.bullet_manager = BulletManager(self.bullets)
         self.fleet_manager = FleetManager(
             self.screen, self.settings, self.ship, FastAlien
         )
         self.aliens = self.fleet_manager.aliens
         # Cria um grupo para armazenar os alienígenas presentes no jogo
 
-        self.event_manager = EventManager(self)
-        self.collision_manager = CollisionManager(self)
+        self.event_manager = EventManager(
+            self.screen, self.settings, self.ship, self.bullets, Bullet
+        )
+        self.collision_manager = CollisionManager(
+            self.ship, self.bullets, self.aliens
+        )
 
     def run_game(self):
         """Cria um laço de repetição para a tela sempre ficar visível até
